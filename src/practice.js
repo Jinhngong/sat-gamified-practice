@@ -39,26 +39,26 @@ const Practice = () => {
         throw new Error(`Failed to fetch questions: ${response.status}`);
       }
       
-      const questionsData = await response.json();
+      const apiData = await response.json();
       
-      // Handle the API response format
+      // Process the API response - the data has a "math" array with questions
       let processedQuestions = [];
-      if (Array.isArray(questionsData)) {
-        processedQuestions = questionsData.map(q => processOpenSATQuestion(q));
-      } else if (questionsData.questions) {
-        processedQuestions = questionsData.questions.map(q => processOpenSATQuestion(q));
+      if (apiData.math && Array.isArray(apiData.math)) {
+        processedQuestions = apiData.math.map(q => processOpenSATQuestion(q));
       } else {
-        throw new Error('Invalid question data format');
+        throw new Error('Invalid API response format - expected math array');
       }
 
       if (processedQuestions.length === 0) {
         throw new Error('No questions found in API response');
       }
 
-      setQuestions(processedQuestions);
+      // Shuffle questions for variety
+      const shuffledQuestions = processedQuestions.sort(() => Math.random() - 0.5);
+      setQuestions(shuffledQuestions);
       
       // Select first question using adaptive logic
-      const firstQuestion = selectNextQuestion(processedQuestions, userProgress);
+      const firstQuestion = selectNextQuestion(shuffledQuestions, userProgress);
       setCurrentQuestion(firstQuestion);
       setLoading(false);
 
@@ -82,11 +82,12 @@ const Practice = () => {
       question: apiQuestion.question?.question || apiQuestion.question?.paragraph || 'Question text unavailable',
       choices: choicesArray,
       correct: correctIndex >= 0 ? correctIndex : 0,
-      explanation: apiQuestion.question?.explanation || 'No explanation available.'
+      explanation: apiQuestion.question?.explanation || 'No explanation available.',
+      difficulty: apiQuestion.difficulty || 'Medium'
     };
   };
 
-  // Adaptive question selection logic
+  // Adaptive question selection logic (same as exam component)
   const selectNextQuestion = (questionsList, progress) => {
     if (!progress || !progress.skillStats) {
       return questionsList[Math.floor(Math.random() * questionsList.length)];
@@ -181,163 +182,298 @@ const Practice = () => {
   };
 
   const getChoiceStyle = (choiceIndex) => {
-    if (selectedAnswer === null) return 'choice-button';
-    
+    const baseStyle = {
+      padding: '15px 20px',
+      textAlign: 'left',
+      border: '2px solid #e0e0e0',
+      borderRadius: '8px',
+      fontSize: '14px',
+      transition: 'all 0.2s ease',
+      cursor: selectedAnswer === null ? 'pointer' : 'default',
+      width: '100%',
+      backgroundColor: 'white'
+    };
+
+    if (selectedAnswer === null) {
+      return {
+        ...baseStyle,
+        ':hover': {
+          backgroundColor: '#f8f9fa',
+          borderColor: '#007bff'
+        }
+      };
+    }
+
     if (choiceIndex === currentQuestion.correct) {
-      return 'choice-button correct';
+      return {
+        ...baseStyle,
+        backgroundColor: '#d4edda',
+        borderColor: '#28a745',
+        color: '#155724'
+      };
     } else if (choiceIndex === selectedAnswer && choiceIndex !== currentQuestion.correct) {
-      return 'choice-button incorrect';
+      return {
+        ...baseStyle,
+        backgroundColor: '#f8d7da',
+        borderColor: '#dc3545',
+        color: '#721c24'
+      };
     } else {
-      return 'choice-button disabled';
+      return {
+        ...baseStyle,
+        backgroundColor: '#f8f9fa',
+        borderColor: '#e0e0e0',
+        color: '#6c757d'
+      };
+    }
+  };
+
+  const getDifficultyColor = (difficulty) => {
+    switch(difficulty?.toLowerCase()) {
+      case 'easy': return '#28a745';
+      case 'medium': return '#ffc107';
+      case 'hard': return '#dc3545';
+      default: return '#6c757d';
     }
   };
 
   if (loading) {
     return (
-      <div className="practice-container" style={{ padding: '20px', textAlign: 'center' }}>
-        <div className="loading">
-          <h2>Loading Practice Questions...</h2>
-          <p>Fetching questions from OpenSAT API...</p>
-          <div style={{ margin: '20px 0' }}>⏳</div>
-        </div>
+      <div style={{ 
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center', 
+        minHeight: '60vh',
+        flexDirection: 'column',
+        gap: '20px'
+      }}>
+        <div style={{ fontSize: '24px' }}>⏳</div>
+        <h2 style={{ margin: 0, color: '#007bff' }}>Loading Practice Questions...</h2>
+        <p style={{ margin: 0, color: '#6c757d' }}>Fetching questions from OpenSAT API...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="practice-container" style={{ padding: '20px', textAlign: 'center' }}>
-        <div className="error" style={{ backgroundColor: '#fee', padding: '20px', borderRadius: '8px', border: '1px solid #fcc' }}>
-          <h2>❌ Error Loading Questions</h2>
-          <p>{error}</p>
-          <button 
-            onClick={initializePractice}
-            style={{ 
-              padding: '10px 20px', 
-              backgroundColor: '#007bff', 
-              color: 'white', 
-              border: 'none', 
-              borderRadius: '4px',
-              cursor: 'pointer',
-              marginTop: '10px'
-            }}
-          >
-            Try Again
-          </button>
-        </div>
+      <div style={{ 
+        maxWidth: '600px', 
+        margin: '50px auto', 
+        padding: '30px',
+        textAlign: 'center',
+        backgroundColor: '#fee',
+        borderRadius: '12px',
+        border: '1px solid #fcc'
+      }}>
+        <div style={{ fontSize: '48px', marginBottom: '20px' }}>❌</div>
+        <h2 style={{ color: '#dc3545', marginBottom: '15px' }}>Error Loading Questions</h2>
+        <p style={{ color: '#721c24', marginBottom: '25px' }}>{error}</p>
+        <button 
+          onClick={initializePractice}
+          style={{ 
+            padding: '12px 24px', 
+            backgroundColor: '#007bff', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            fontWeight: '500'
+          }}
+        >
+          Try Again
+        </button>
       </div>
     );
   }
 
   if (!currentQuestion) {
     return (
-      <div className="practice-container" style={{ padding: '20px', textAlign: 'center' }}>
+      <div style={{ 
+        maxWidth: '600px', 
+        margin: '50px auto', 
+        padding: '30px',
+        textAlign: 'center'
+      }}>
         <h2>No Questions Available</h2>
         <p>Unable to load questions from the API.</p>
-        <button onClick={initializePractice}>Retry</button>
+        <button 
+          onClick={initializePractice}
+          style={{ 
+            padding: '12px 24px', 
+            backgroundColor: '#007bff', 
+            color: 'white', 
+            border: 'none', 
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontSize: '16px'
+          }}
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="practice-container" style={{ maxWidth: '800px', margin: '0 auto', padding: '20px' }}>
-      <div className="practice-header" style={{ marginBottom: '20px' }}>
-        <h2>🎯 SAT Practice Mode</h2>
-        <div className="score-info" style={{ display: 'flex', gap: '20px', marginBottom: '10px' }}>
-          <span>Question {currentQuestionIndex + 1}</span>
-          <span>Score: {score.correct}/{score.total}</span>
+    <div style={{ 
+      maxWidth: '900px', 
+      margin: '0 auto', 
+      padding: '20px',
+      fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+    }}>
+      {/* Header */}
+      <div style={{ 
+        marginBottom: '30px',
+        textAlign: 'center',
+        backgroundColor: 'white',
+        padding: '20px',
+        borderRadius: '12px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }}>
+        <h1 style={{ 
+          margin: '0 0 15px 0', 
+          color: '#007bff',
+          fontSize: '28px',
+          fontWeight: '600'
+        }}>
+          🎯 SAT Practice Mode
+        </h1>
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '30px',
+          flexWrap: 'wrap',
+          fontSize: '16px',
+          color: '#495057'
+        }}>
+          <span><strong>Question:</strong> {currentQuestionIndex + 1}</span>
+          <span><strong>Score:</strong> {score.correct}/{score.total}</span>
+          <span><strong>Accuracy:</strong> {score.total > 0 ? Math.round((score.correct/score.total)*100) : 0}%</span>
           {userProgress && (
-            <span>Streak: {userProgress.streak || 0}</span>
+            <span><strong>Streak:</strong> {userProgress.streak || 0}</span>
           )}
         </div>
       </div>
 
-      <div className="question-card" style={{ 
+      {/* Question Card */}
+      <div style={{ 
         backgroundColor: 'white', 
-        padding: '30px', 
-        borderRadius: '12px', 
-        boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-        marginBottom: '20px'
+        padding: '35px', 
+        borderRadius: '16px', 
+        boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+        marginBottom: '25px'
       }}>
-        <div className="skill-tag" style={{ 
-          display: 'inline-block', 
-          backgroundColor: '#e3f2fd', 
-          color: '#1976d2', 
-          padding: '4px 12px', 
-          borderRadius: '16px', 
-          fontSize: '12px',
-          marginBottom: '15px'
+        {/* Question Meta Info */}
+        <div style={{ 
+          display: 'flex', 
+          gap: '12px', 
+          marginBottom: '20px',
+          alignItems: 'center'
         }}>
-          {currentQuestion.skill}
+          <span style={{ 
+            backgroundColor: '#e3f2fd', 
+            color: '#1976d2', 
+            padding: '6px 14px', 
+            borderRadius: '20px', 
+            fontSize: '13px',
+            fontWeight: '500'
+          }}>
+            {currentQuestion.skill}
+          </span>
+          <span style={{ 
+            backgroundColor: getDifficultyColor(currentQuestion.difficulty), 
+            color: 'white', 
+            padding: '6px 14px', 
+            borderRadius: '20px', 
+            fontSize: '13px',
+            fontWeight: '500'
+          }}>
+            {currentQuestion.difficulty}
+          </span>
         </div>
         
-        <div className="question-text" style={{ 
-          fontSize: '16px', 
-          lineHeight: '1.6', 
-          marginBottom: '25px',
-          fontWeight: '500'
+        {/* Question Text */}
+        <div style={{ 
+          fontSize: '18px', 
+          lineHeight: '1.7', 
+          marginBottom: '30px',
+          fontWeight: '500',
+          color: '#212529'
         }}>
           {currentQuestion.question}
         </div>
         
-        <div className="choices" style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        {/* Answer Choices */}
+        <div style={{ 
+          display: 'flex', 
+          flexDirection: 'column', 
+          gap: '12px' 
+        }}>
           {currentQuestion.choices.map((choice, index) => (
             <button
               key={index}
-              className={getChoiceStyle(index)}
               onClick={() => handleAnswerSelect(index)}
               disabled={selectedAnswer !== null}
-              style={{
-                padding: '15px 20px',
-                textAlign: 'left',
-                border: '2px solid #e0e0e0',
-                borderRadius: '8px',
-                backgroundColor: selectedAnswer === null ? 'white' : 
-                  index === currentQuestion.correct ? '#d4edda' :
-                  index === selectedAnswer ? '#f8d7da' : '#f8f9fa',
-                borderColor: selectedAnswer === null ? '#e0e0e0' :
-                  index === currentQuestion.correct ? '#28a745' :
-                  index === selectedAnswer && index !== currentQuestion.correct ? '#dc3545' : '#e0e0e0',
-                cursor: selectedAnswer === null ? 'pointer' : 'default',
-                fontSize: '14px',
-                transition: 'all 0.2s ease'
-              }}
+              style={getChoiceStyle(index)}
             >
               <strong>{String.fromCharCode(65 + index)}.</strong> {choice}
             </button>
           ))}
         </div>
 
+        {/* Explanation */}
         {showExplanation && (
-          <div className="explanation" style={{ 
-            marginTop: '25px', 
-            padding: '20px', 
-            backgroundColor: '#f8f9fa', 
-            borderRadius: '8px',
-            borderLeft: '4px solid #007bff'
+          <div style={{ 
+            marginTop: '30px', 
+            padding: '25px', 
+            backgroundColor: selectedAnswer === currentQuestion.correct ? '#d4edda' : '#fff3cd', 
+            borderRadius: '12px',
+            borderLeft: `5px solid ${selectedAnswer === currentQuestion.correct ? '#28a745' : '#ffc107'}`
           }}>
-            <h4 style={{ marginBottom: '10px', color: '#007bff' }}>
+            <h4 style={{ 
+              marginBottom: '12px', 
+              color: selectedAnswer === currentQuestion.correct ? '#155724' : '#856404',
+              fontSize: '18px',
+              fontWeight: '600'
+            }}>
               {selectedAnswer === currentQuestion.correct ? '✅ Correct!' : '❌ Incorrect'}
+              {selectedAnswer !== currentQuestion.correct && (
+                <span style={{ fontSize: '14px', fontWeight: 'normal' }}>
+                  {' '}(Correct answer: {String.fromCharCode(65 + currentQuestion.correct)})
+                </span>
+              )}
             </h4>
-            <p style={{ margin: 0, lineHeight: '1.5' }}>{currentQuestion.explanation}</p>
+            <p style={{ 
+              margin: 0, 
+              lineHeight: '1.6',
+              color: selectedAnswer === currentQuestion.correct ? '#155724' : '#856404'
+            }}>
+              {currentQuestion.explanation}
+            </p>
           </div>
         )}
       </div>
 
+      {/* Next Question Button */}
       {showExplanation && (
         <div style={{ textAlign: 'center' }}>
           <button 
             onClick={nextQuestion}
             style={{
-              padding: '12px 30px',
+              padding: '14px 32px',
               backgroundColor: '#28a745',
               color: 'white',
               border: 'none',
-              borderRadius: '6px',
+              borderRadius: '8px',
               fontSize: '16px',
               cursor: 'pointer',
-              fontWeight: '500'
+              fontWeight: '600',
+              boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+              transition: 'all 0.2s ease'
             }}
+            onMouseOver={(e) => e.target.style.backgroundColor = '#218838'}
+            onMouseOut={(e) => e.target.style.backgroundColor = '#28a745'}
           >
             Next Question →
           </button>
