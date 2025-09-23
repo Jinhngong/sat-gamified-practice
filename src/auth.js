@@ -1,54 +1,41 @@
-import React, { useState, useEffect } from 'react';
-import { signUp, signIn, signOut, getSession, onAuthStateChange } from './auth';
+// src/auth.js
+import { createClient } from '@supabase/supabase-js';
 
-function AuthComponent() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [session, setSession] = useState(null);
+// Initialize Supabase
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
-  useEffect(() => {
-    const fetchSession = async () => {
-      const currentSession = await getSession();
-      setSession(currentSession);
-    };
+export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
-    fetchSession();
+// Sign up function
+export const signUp = async (email, password) => {
+  return await supabase.auth.signUp({
+    email,
+    password,
+  });
+};
 
-    const { data: { subscription } } = onAuthStateChange((_event, session) => {
-      setSession(session);
-    });
+// Sign in function
+export const signIn = async (email, password) => {
+  return await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+};
 
-    return () => subscription.unsubscribe();
-  }, []);
+// Sign out function
+export const signOut = async () => {
+  const { error } = await supabase.auth.signOut();
+  return { message: error ? null : 'Signed out', error };
+};
 
-  const handleSignUp = async () => {
-    const { user, error } = await signUp(email, password);
-    if (error) alert(error.message);
-    else alert(`Signed up as ${user.email}`);
-  };
+// Get current session
+export const getSession = async () => {
+  const { data } = await supabase.auth.getSession();
+  return data.session;
+};
 
-  const handleSignIn = async () => {
-    const { user, error } = await signIn(email, password);
-    if (error) alert(error.message);
-    else alert(`Signed in as ${user.email}`);
-  };
-
-  const handleSignOut = async () => {
-    const { message, error } = await signOut();
-    if (error) alert(error.message);
-    else alert(message);
-  };
-
-  return (
-    <div>
-      <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="Password" />
-      <button onClick={handleSignUp}>Sign Up</button>
-      <button onClick={handleSignIn}>Sign In</button>
-      <button onClick={handleSignOut}>Sign Out</button>
-      {session && <p>Welcome, {session.user.email}</p>}
-    </div>
-  );
-}
-
-export default AuthComponent;
+// Auth state change subscription
+export const onAuthStateChange = (callback) => {
+  return supabase.auth.onAuthStateChange(callback);
+};
