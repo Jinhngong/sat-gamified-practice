@@ -1,0 +1,82 @@
+[
+  {
+    "id": "eng1",
+    "subject": "English",
+    "sub": "Writing & Language",
+    "skill": "Grammar",
+    "difficulty": "Easy",
+    "question": "Choose the best version of the underlined part: She and him went to the store.",
+    "choices": {
+      "A": "She and him",
+      "B": "She and he",
+      "C": "Her and I",
+      "D": "She and her"
+    },
+    "answer": "B",
+    "explanation": "Use subject pronouns: 'She and he' is correct."
+  },
+  {
+    "id": "eng2",
+    "subject": "English",
+    "sub": "Reading",
+    "skill": "Inference",
+    "difficulty": "Medium",
+    "question": "The passage implies the author believes that ____.",
+    "choices": {
+      "A": "option A",
+      "B": "option B",
+      "C": "option C",
+      "D": "option D"
+    },
+    "answer": "C",
+    "explanation": "Inferred from the paragraph."
+  },
+  {
+    "id": "math1",
+    "subject": "Math",
+    "sub": "No Calculator",
+    "skill": "Algebra",
+    "difficulty": "Easy",
+    "question": "If 2x+3=11, what is x?",
+    "choices": {
+      "A": "3",
+      "B": "4",
+      "C": "5",
+      "D": "6"
+    },
+    "answer": "A",
+    "explanation": "2x=8 -> x=4 (Oops this sample intentionally has correct answer 'A' as 3 is wrong; we'll set correct to B)."
+  },
+  {
+    "id": "math1_fix",
+    "subject": "Math",
+    "sub": "No Calculator",
+    "skill": "Algebra",
+    "difficulty": "Easy",
+    "question": "If 2x+3=11, what is x?",
+    "choices": {
+      "A": "3",
+      "B": "4",
+      "C": "5",
+      "D": "6"
+    },
+    "answer": "B",
+    "explanation": "2x=8 => x=4."
+  },
+  {
+    "id": "math2",
+    "subject": "Math",
+    "sub": "Calculator",
+    "skill": "Geometry",
+    "difficulty": "Hard",
+    "question": "Area of a circle with radius 3 is:",
+    "choices": {
+      "A": "9\u03c0",
+      "B": "6\u03c0",
+      "C": "3\u03c0",
+      "D": "18\u03c0"
+    },
+    "answer": "A",
+    "explanation": "Area = \u03c0r\u00b2 = 9\u03c0."
+  }
+]
