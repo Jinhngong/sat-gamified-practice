@@ -1,68 +1,156 @@
-import React, {useEffect, useState} from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
-import Home from './home';
-import Practice from './practice';
-import Exam from './exam';
-import Dashboard from './dashboard';
-import Auth from './auth';
-import { getCurrentUser } from './utils';
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Header from './components/Header';
+import Home from './components/Home';
+import Practice from './components/Practice';
+import Exam from './components/Exam';
+import Dashboard from './components/Dashboard';
+import Auth from './components/Auth';
+import { supabase } from './supabaseClient';
+import './App.css';
 
-export default function App(){
-  const [theme, setTheme] = useState(localStorage.getItem('sat_theme') || 'dark');
-  const [user, setUser] = useState(getCurrentUser());
+function App() {
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [userProgress, setUserProgress] = useState(null);
 
-  useEffect(()=>{
-    document.body.classList.toggle('light', theme === 'light');
-    localStorage.setItem('sat_theme', theme);
-  },[theme]);
+  useEffect(() => {
+    // Check for existing session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
 
-  function handleLogout(){
-    localStorage.removeItem('sat_user');
-    setUser(null);
-    window.location.href = '/';
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          loadUserProgress(session.user.id);
+        } else {
+          setUserProgress(null);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const loadUserProgress = async (userId) => {
+    try {
+      const { data, error } = await supabase
+        .from('progress')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error loading progress:', error);
+        return;
+      }
+
+      if (data) {
+        setUserProgress(data);
+      } else {
+        // Create initial progress record
+        const initialProgress = {
+          user_id: userId,
+          points: 0,
+          streak: 0,
+          skill_stats: {}
+        };
+
+        const { data: newProgress, error: insertError } = await supabase
+          .from('progress')
+          .insert([initialProgress])
+          .select()
+          .single();
+
+        if (!insertError) {
+          setUserProgress(newProgress);
+        }
+      }
+    } catch (error) {
+      console.error('Error in loadUserProgress:', error);
+    }
+  };
+
+  const updateProgress = async (updates) => {
+    if (!user || !userProgress) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('progress')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        setUserProgress(data);
+      }
+    } catch (error) {
+      console.error('Error updating progress:', error);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="container">
-      <header className="header">
-        <div>
-          <h1 style={{margin:0}}>SAT Gamified Practice</h1>
-          <div className="small">Practice Rush • Exam Mode • Adaptive Practice</div>
-        </div>
-        <div className="header controls">
-          <nav style={{display:'flex',gap:8}}>
-            <Link to="/" className="small">Home</Link>
-            <Link to="/practice" className="small">Practice</Link>
-            <Link to="/exam" className="small">Exam</Link>
-            <Link to="/dashboard" className="small">Dashboard</Link>
-          </nav>
-          <div style={{display:'flex',gap:8,alignItems:'center',marginLeft:12}}>
-            <div className="small">Theme</div>
-            <div className="switch" style={{cursor:'pointer'}} onClick={()=> setTheme(t=> t==='dark'?'light':'dark')}>
-              {theme==='dark' ? '🌙 Dark' : '☀️ Light'}
-            </div>
-            {user ? (
-              <div style={{display:'flex',gap:8,alignItems:'center',marginLeft:8}}>
-                <div className="small">Hi, <strong>{user.username}</strong></div>
-                <button className="button" onClick={handleLogout}>Logout</button>
-              </div>
-            ) : (
-              <Link to="/login"><button className="button">Sign in / Up</button></Link>
-            )}
-          </div>
-        </div>
-      </header>
-
-      <main style={{marginTop:16}}>
+    <Router>
+      <div className="App min-h-screen bg-gray-50">
+        {user && <Header user={user} userProgress={userProgress} />}
+        
         <Routes>
-          <Route path="/" element={<Home/>} />
-          <Route path="/practice" element={<Practice/>} />
-          <Route path="/exam" element={<Exam/>} />
-          <Route path="/dashboard" element={<Dashboard/>} />
-          <Route path="/login" element={<Auth onAuthChange={(u)=> setUser(u)} />} />
+          <Route path="/auth" element={
+            user ? <Navigate to="/" replace /> : <Auth />
+          } />
+          
+          <Route path="/" element={
+            !user ? <Navigate to="/auth" replace /> : 
+            <Home userProgress={userProgress} />
+          } />
+          
+          <Route path="/practice" element={
+            !user ? <Navigate to="/auth" replace /> : 
+            <Practice 
+              user={user} 
+              userProgress={userProgress} 
+              updateProgress={updateProgress} 
+            />
+          } />
+          
+          <Route path="/exam" element={
+            !user ? <Navigate to="/auth" replace /> : 
+            <Exam 
+              user={user} 
+              userProgress={userProgress} 
+              updateProgress={updateProgress} 
+            />
+          } />
+          
+          <Route path="/dashboard" element={
+            !user ? <Navigate to="/auth" replace /> : 
+            <Dashboard user={user} userProgress={userProgress} />
+          } />
+          
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
-        <footer style={{marginTop:20,fontSize:13,color:'#94a3b8'}}>Tip: data is saved locally in your browser (localStorage). To enable real accounts, integrate Supabase and configure env vars on Vercel.</footer>
-      </main>
-    </div>
+      </div>
+    </Router>
   );
 }
+
+export default App;
