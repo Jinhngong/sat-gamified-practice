@@ -27,3 +27,14 @@ export const getSession = async () => {
 export const onAuthStateChange = (callback) => {
   return supabase.auth.onAuthStateChange(callback);
 };
+
+// 👇 Add this so you can `import Auth from './auth'`
+const Auth = {
+  signUp,
+  signIn,
+  signOut,
+  getSession,
+  onAuthStateChange,
+};
+
+export default Auth;
