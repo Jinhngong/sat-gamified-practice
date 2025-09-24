@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { supabase } from '../supabaseClient';
+import { supabase } from '.components/supabaseClient';
 
 const Header = ({ user, userProgress }) => {
   const [menuOpen, setMenuOpen] = useState(false);
