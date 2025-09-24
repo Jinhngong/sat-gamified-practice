@@ -6,7 +6,7 @@ import Practice from './components/Practice';
 import Exam from './components/Exam';
 import Dashboard from './components/Dashboard';
 import Auth from './components/Auth';
-import { supabase } from './supabaseClient';
+import { supabase } from '.components/supabaseClient';
 import './App.css';
 
 function App() {
