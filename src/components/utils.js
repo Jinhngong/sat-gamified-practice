@@ -1,5 +1,5 @@
 // Utilities for progress tracking and adaptive selection
-import { supabase } from '.components/supabaseClient';
+import { supabase } from './components/supabaseClient';
 
 export function loadQuestions() {
   return fetch('/questions.json').then(r => r.json());
