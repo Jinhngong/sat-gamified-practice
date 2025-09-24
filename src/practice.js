@@ -179,4 +179,176 @@ const Practice = ({ user, userProgress, updateProgress }) => {
           <div className="space-y-3">
             <button
               onClick={loadQuestions}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semib
+              className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+            <Link
+              to="/"
+              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors block text-center"
+            >
+              Back to Home
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentQuestion) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-2xl font-semibold text-gray-900 mb-4">No Questions Available</h2>
+          <button
+            onClick={loadQuestions}
+            className="bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        
+        {/* Header */}
+        <div className="bg-white rounded-2xl p-6 mb-8 shadow-sm">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div className="flex items-center space-x-4">
+              <Link
+                to="/"
+                className="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2"
+              >
+                ← Back to Home
+              </Link>
+              <div className="text-sm text-gray-600">
+                Question {questionIndex + 1} • Session Score: {sessionStats.correct}/{sessionStats.total}
+                {sessionStats.total > 0 && (
+                  <span className="ml-2 text-blue-600 font-medium">
+                    ({Math.round((sessionStats.correct/sessionStats.total)*100)}%)
+                  </span>
+                )}
+              </div>
+            </div>
+            
+            {userProgress && (
+              <div className="flex items-center space-x-4 text-sm">
+                <div className="flex items-center space-x-1">
+                  <span className="text-gray-500">Points:</span>
+                  <span className="font-semibold text-blue-600">{userProgress.points || 0}</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <span className="text-gray-500">Streak:</span>
+                  <span className="font-semibold text-green-600">{userProgress.streak || 0}</span>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Question Card */}
+        <div className="bg-white rounded-2xl p-8 shadow-sm mb-6">
+          {/* Question metadata */}
+          <div className="flex items-center space-x-3 mb-6">
+            <span className="px-4 py-2 bg-blue-100 text-blue-800 text-sm font-medium rounded-full">
+              {currentQuestion.skill}
+            </span>
+            <span className={`px-4 py-2 text-sm font-medium rounded-full ${getDifficultyColor(currentQuestion.difficulty)}`}>
+              {currentQuestion.difficulty}
+            </span>
+          </div>
+
+          {/* Question text */}
+          <div className="text-lg leading-relaxed text-gray-900 mb-8 font-medium">
+            {currentQuestion.question}
+          </div>
+
+          {/* Answer choices */}
+          <div className="space-y-3 mb-8">
+            {currentQuestion.choices.map((choice, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswerSelect(index)}
+                disabled={selectedAnswer !== null}
+                className={getChoiceStyle(index)}
+              >
+                <span className="font-bold text-lg mr-3">{String.fromCharCode(65 + index)}.</span>
+                {choice}
+              </button>
+            ))}
+          </div>
+
+          {/* Explanation */}
+          {showExplanation && (
+            <div className={`p-6 rounded-xl mb-6 border-l-4 ${
+              selectedAnswer === currentQuestion.correct
+                ? 'bg-green-50 border-green-400'
+                : 'bg-red-50 border-red-400'
+            }`}>
+              <div className="flex items-center mb-3">
+                <span className="text-2xl mr-2">
+                  {selectedAnswer === currentQuestion.correct ? '✅' : '❌'}
+                </span>
+                <h4 className="text-lg font-bold">
+                  {selectedAnswer === currentQuestion.correct ? 'Correct!' : 'Incorrect'}
+                  {selectedAnswer !== currentQuestion.correct && (
+                    <span className="text-base font-normal text-gray-600 ml-2">
+                      (Correct answer: {String.fromCharCode(65 + currentQuestion.correct)})
+                    </span>
+                  )}
+                </h4>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                {currentQuestion.explanation}
+              </p>
+            </div>
+          )}
+
+          {/* Next button */}
+          {showExplanation && (
+            <div className="text-center">
+              <button
+                onClick={nextQuestion}
+                className="bg-blue-600 text-white px-8 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-all duration-200 flex items-center gap-2 mx-auto shadow-lg hover:shadow-xl transform hover:-translate-y-1"
+              >
+                Next Question
+                <span>→</span>
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Quick Stats */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Session Progress</h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{sessionStats.total}</div>
+              <div className="text-sm text-gray-600">Questions</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">{sessionStats.correct}</div>
+              <div className="text-sm text-gray-600">Correct</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-red-600">{sessionStats.total - sessionStats.correct}</div>
+              <div className="text-sm text-gray-600">Incorrect</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-600">
+                {sessionStats.total > 0 ? Math.round((sessionStats.correct/sessionStats.total)*100) : 0}%
+              </div>
+              <div className="text-sm text-gray-600">Accuracy</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Practice;
