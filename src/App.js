@@ -1,13 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Header from './components/Header';
-import Home from './components/Home';
-import Practice from './components/Practice';
-import Exam from './components/Exam';
-import Dashboard from './components/Dashboard';
-import Auth from './components/Auth';
 import { supabase } from './supabaseClient';
 import './App.css';
+
+function Placeholder({ name }) {
+  return (
+    <div className="p-6 text-center">
+      <h1 className="text-2xl font-bold">{name} Page</h1>
+      <p className="text-gray-600">This is a placeholder. Add {name}.js later.</p>
+    </div>
+  );
+}
 
 function App() {
   const [user, setUser] = useState(null);
@@ -111,41 +114,30 @@ function App() {
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
-        {user && <Header user={user} userProgress={userProgress} />}
-        
         <Routes>
           <Route path="/auth" element={
-            user ? <Navigate to="/" replace /> : <Auth />
+            user ? <Navigate to="/" replace /> : <Placeholder name="Auth" />
           } />
-          
+
           <Route path="/" element={
-            !user ? <Navigate to="/auth" replace /> : 
-            <Home userProgress={userProgress} />
+            !user ? <Navigate to="/auth" replace /> : <Placeholder name="Home" />
           } />
-          
+
           <Route path="/practice" element={
             !user ? <Navigate to="/auth" replace /> : 
-            <Practice 
-              user={user} 
-              userProgress={userProgress} 
-              updateProgress={updateProgress} 
-            />
+            <Placeholder name="Practice" />
           } />
-          
+
           <Route path="/exam" element={
             !user ? <Navigate to="/auth" replace /> : 
-            <Exam 
-              user={user} 
-              userProgress={userProgress} 
-              updateProgress={updateProgress} 
-            />
+            <Placeholder name="Exam" />
           } />
-          
+
           <Route path="/dashboard" element={
             !user ? <Navigate to="/auth" replace /> : 
-            <Dashboard user={user} userProgress={userProgress} />
+            <Placeholder name="Dashboard" />
           } />
-          
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
