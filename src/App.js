@@ -3,17 +3,10 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import Header from './components/Header';
 import Home from './components/Home';
 import Practice from './components/Practice';
-import Exam from './exam'; // Keep your existing exam component
+import Exam from './components/Exam';
 import Dashboard from './components/Dashboard';
-import Auth from './auth'; // Keep your existing auth component
-// Import Supabase client if it exists, otherwise use localStorage
-let supabase = null;
-try {
-  supabase = require('./supabaseClient').supabase;
-} catch (e) {
-  console.log('Supabase not configured, using localStorage');
-}
-
+import Auth from './components/Auth';
+import { supabase } from './supabaseClient';
 import './App.css';
 
 function App() {
@@ -22,50 +15,31 @@ function App() {
   const [userProgress, setUserProgress] = useState(null);
 
   useEffect(() => {
-    initializeAuth();
-  }, []);
-
-  const initializeAuth = async () => {
-    if (supabase) {
-      // Use Supabase auth
+    // Check for existing session
+    const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
-      
-      if (session?.user) {
-        await loadUserProgress(session.user.id);
-      }
+      setLoading(false);
+    };
 
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          setUser(session?.user ?? null);
-          if (session?.user) {
-            loadUserProgress(session.user.id);
-          } else {
-            setUserProgress(null);
-          }
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          loadUserProgress(session.user.id);
+        } else {
+          setUserProgress(null);
         }
-      );
-
-      setLoading(false);
-      return () => subscription.unsubscribe();
-    } else {
-      // Use localStorage fallback
-      const currentUser = localStorage.getItem('currentUser');
-      if (currentUser) {
-        const userData = { id: currentUser, email: currentUser };
-        setUser(userData);
-        loadLocalProgress(currentUser);
       }
-      setLoading(false);
-    }
-  };
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const loadUserProgress = async (userId) => {
-    if (!supabase) {
-      loadLocalProgress(userId);
-      return;
-    }
-
     try {
       const { data, error } = await supabase
         .from('progress')
@@ -81,6 +55,7 @@ function App() {
       if (data) {
         setUserProgress(data);
       } else {
+        // Create initial progress record
         const initialProgress = {
           user_id: userId,
           points: 0,
@@ -100,78 +75,34 @@ function App() {
       }
     } catch (error) {
       console.error('Error in loadUserProgress:', error);
-      loadLocalProgress(userId);
-    }
-  };
-
-  const loadLocalProgress = (userId) => {
-    const progressKey = `sat_progress_${userId}`;
-    const savedProgress = localStorage.getItem(progressKey);
-    if (savedProgress) {
-      setUserProgress(JSON.parse(savedProgress));
-    } else {
-      const initialProgress = {
-        user_id: userId,
-        points: 0,
-        streak: 0,
-        skill_stats: {}
-      };
-      setUserProgress(initialProgress);
-      localStorage.setItem(progressKey, JSON.stringify(initialProgress));
     }
   };
 
   const updateProgress = async (updates) => {
-    if (!user) return;
+    if (!user || !userProgress) return;
 
-    if (supabase && userProgress) {
-      try {
-        const { data, error } = await supabase
-          .from('progress')
-          .update(updates)
-          .eq('user_id', user.id)
-          .select()
-          .single();
+    try {
+      const { data, error } = await supabase
+        .from('progress')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select()
+        .single();
 
-        if (!error && data) {
-          setUserProgress(data);
-        }
-      } catch (error) {
-        console.error('Error updating progress:', error);
-        updateLocalProgress(updates);
+      if (!error && data) {
+        setUserProgress(data);
       }
-    } else {
-      updateLocalProgress(updates);
+    } catch (error) {
+      console.error('Error updating progress:', error);
     }
-  };
-
-  const updateLocalProgress = (updates) => {
-    const progressKey = `sat_progress_${user.id}`;
-    const updatedProgress = { ...userProgress, ...updates };
-    setUserProgress(updatedProgress);
-    localStorage.setItem(progressKey, JSON.stringify(updatedProgress));
   };
 
   if (loading) {
     return (
-      <div style={{
-        minHeight: '100vh',
-        backgroundColor: '#f8fafc',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center'
-      }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{
-            width: '48px',
-            height: '48px',
-            border: '3px solid #e2e8f0',
-            borderTop: '3px solid #3b82f6',
-            borderRadius: '50%',
-            animation: 'spin 1s linear infinite',
-            margin: '0 auto 16px'
-          }}></div>
-          <p style={{ color: '#64748b' }}>Loading...</p>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
         </div>
       </div>
     );
@@ -179,7 +110,7 @@ function App() {
 
   return (
     <Router>
-      <div className="App" style={{ minHeight: '100vh', backgroundColor: '#f8fafc' }}>
+      <div className="App min-h-screen bg-gray-50">
         {user && <Header user={user} userProgress={userProgress} />}
         
         <Routes>
