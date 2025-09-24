@@ -1,3 +1,4 @@
+// src/App.js
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Header from './components/Header';
@@ -10,21 +11,28 @@ import { supabase } from './components/supabaseClient';
 import './App.css';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // ------------------------------
+  // ORIGINAL: state for real user session
+  // const [user, setUser] = useState(null);
+  // const [loading, setLoading] = useState(true);
+  // ------------------------------
+
+  // TEMPORARY: demo user to show content without authentication
+  const [user, setUser] = useState({ id: 'demo', email: 'demo@test.com' });
+
   const [userProgress, setUserProgress] = useState(null);
 
   useEffect(() => {
-    // Check for existing session
+    // ------------------------------
+    // ORIGINAL: fetching session from Supabase
+    /*
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setUser(session?.user ?? null);
       setLoading(false);
     };
-
     getSession();
 
-    // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null);
@@ -35,50 +43,21 @@ function App() {
         }
       }
     );
-
     return () => subscription.unsubscribe();
+    */
+    // ------------------------------
+
+    // TEMPORARY: load demo progress
+    const loadUserProgress = async () => {
+      setUserProgress({ points: 0, streak: 0, skill_stats: {} });
+    };
+    loadUserProgress();
   }, []);
 
-  const loadUserProgress = async (userId) => {
-    try {
-      const { data, error } = await supabase
-        .from('progress')
-        .select('*')
-        .eq('user_id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') {
-        console.error('Error loading progress:', error);
-        return;
-      }
-
-      if (data) {
-        setUserProgress(data);
-      } else {
-        // Create initial progress record
-        const initialProgress = {
-          user_id: userId,
-          points: 0,
-          streak: 0,
-          skill_stats: {}
-        };
-
-        const { data: newProgress, error: insertError } = await supabase
-          .from('progress')
-          .insert([initialProgress])
-          .select()
-          .single();
-
-        if (!insertError) {
-          setUserProgress(newProgress);
-        }
-      }
-    } catch (error) {
-      console.error('Error in loadUserProgress:', error);
-    }
-  };
-
-  const updateProgress = async (updates) => {
+  const updateProgress = (updates) => {
+    // ------------------------------
+    // ORIGINAL: would check for user and call Supabase update
+    /*
     if (!user || !userProgress) return;
 
     try {
@@ -95,8 +74,16 @@ function App() {
     } catch (error) {
       console.error('Error updating progress:', error);
     }
+    */
+    // ------------------------------
+
+    // TEMPORARY: just update state
+    setUserProgress((prev) => ({ ...prev, ...updates }));
   };
 
+  // ------------------------------
+  // ORIGINAL: loading screen
+  /*
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -107,45 +94,43 @@ function App() {
       </div>
     );
   }
+  */
+  // ------------------------------
 
   return (
     <Router>
       <div className="App min-h-screen bg-gray-50">
-        {user && <Header user={user} userProgress={userProgress} />}
-        
+        {/* Always render Header */}
+        <Header user={user} userProgress={userProgress} />
+
         <Routes>
-          <Route path="/auth" element={
-            user ? <Navigate to="/" replace /> : <Auth />
-          } />
-          
-          <Route path="/" element={
-            !user ? <Navigate to="/auth" replace /> : 
-            <Home userProgress={userProgress} />
-          } />
-          
-          <Route path="/practice" element={
-            !user ? <Navigate to="/auth" replace /> : 
-            <Practice 
-              user={user} 
-              userProgress={userProgress} 
-              updateProgress={updateProgress} 
-            />
-          } />
-          
-          <Route path="/exam" element={
-            !user ? <Navigate to="/auth" replace /> : 
-            <Exam 
-              user={user} 
-              userProgress={userProgress} 
-              updateProgress={updateProgress} 
-            />
-          } />
-          
-          <Route path="/dashboard" element={
-            !user ? <Navigate to="/auth" replace /> : 
-            <Dashboard user={user} userProgress={userProgress} />
-          } />
-          
+          <Route path="/auth" element={<Auth />} />
+
+          <Route path="/" element={<Home userProgress={userProgress} />} />
+
+          <Route
+            path="/practice"
+            element={<Practice
+              user={user}
+              userProgress={userProgress}
+              updateProgress={updateProgress}
+            />}
+          />
+
+          <Route
+            path="/exam"
+            element={<Exam
+              user={user}
+              userProgress={userProgress}
+              updateProgress={updateProgress}
+            />}
+          />
+
+          <Route
+            path="/dashboard"
+            element={<Dashboard user={user} userProgress={userProgress} />}
+          />
+
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
