@@ -1,63 +1,140 @@
 // src/App.js
-import React from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import { AuthProvider, useAuth } from "./contexts/AuthContext";
-import ThemeToggle from "./components/ThemeToggle";
-import PracticeSelection from "./components/PracticeSelection"; // keep existing
-import Exam from "./Exam"; // important: matches src/Exam.js casing
-import Dashboard from "./components/Dashboard"; // keep existing
-import "./App.css";
-
-const ProtectedRoute = ({ children }) => {
-  const { user } = useAuth();
-  if (!user) return <Navigate to="/" replace />; // fallback to home if no user
-  return children;
-};
+import React, { useState, useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Header from './components/Header';
+import Home from './components/Home';
+import Practice from './components/Practice';
+import Exam from './components/Exam';
+import Dashboard from './components/Dashboard';
+import Auth from './components/Auth';
+import { supabase } from './components/supabaseClient';
+import './App.css';
 
 function App() {
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <Router>
-          <div
-            className="min-h-screen"
-            style={{
-              backgroundColor: "var(--color-bg)",
-              color: "var(--color-text)",
-            }}
-          >
-            <header className="p-4 flex justify-between items-center bg-[var(--color-surface)]">
-              <h1 className="text-xl font-bold">SAT Gamified Practice</h1>
-              <ThemeToggle />
-            </header>
+  // ------------------------------
+  // ORIGINAL: state for real user session
+  // const [user, setUser] = useState(null);
+  // const [loading, setLoading] = useState(true);
+  // ------------------------------
 
-            <main className="p-4">
-              <Routes>
-                <Route path="/" element={<PracticeSelection />} />
-                <Route
-                  path="/exam"
-                  element={
-                    <ProtectedRoute>
-                      <Exam />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </main>
-          </div>
-        </Router>
-      </AuthProvider>
-    </ThemeProvider>
+  // TEMPORARY: demo user to show content without authentication
+  const [user, setUser] = useState({ id: 'demo', email: 'demo@test.com' });
+
+  const [userProgress, setUserProgress] = useState(null);
+
+  useEffect(() => {
+    // ------------------------------
+    // ORIGINAL: fetching session from Supabase
+    /*
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      setUser(session?.user ?? null);
+      setLoading(false);
+    };
+    getSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          loadUserProgress(session.user.id);
+        } else {
+          setUserProgress(null);
+        }
+      }
+    );
+    return () => subscription.unsubscribe();
+    */
+    // ------------------------------
+
+    // TEMPORARY: load demo progress
+    const loadUserProgress = async () => {
+      setUserProgress({ points: 0, streak: 0, skill_stats: {} });
+    };
+    loadUserProgress();
+  }, []);
+
+  const updateProgress = (updates) => {
+    // ------------------------------
+    // ORIGINAL: would check for user and call Supabase update
+    /*
+    if (!user || !userProgress) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('progress')
+        .update(updates)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (!error && data) {
+        setUserProgress(data);
+      }
+    } catch (error) {
+      console.error('Error updating progress:', error);
+    }
+    */
+    // ------------------------------
+
+    // TEMPORARY: just update state
+    setUserProgress((prev) => ({ ...prev, ...updates }));
+  };
+
+  // ------------------------------
+  // ORIGINAL: loading screen
+  /*
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+  */
+  // ------------------------------
+
+  return (
+    <Router>
+      <div className="App min-h-screen bg-gray-50">
+        {/* Always render Header */}
+        <Header user={user} userProgress={userProgress} />
+
+        <Routes>
+          <Route path="/auth" element={<Auth />} />
+
+          <Route path="/" element={<Home userProgress={userProgress} />} />
+
+          <Route
+            path="/practice"
+            element={<Practice
+              user={user}
+              userProgress={userProgress}
+              updateProgress={updateProgress}
+            />}
+          />
+
+          <Route
+            path="/exam"
+            element={<Exam
+              user={user}
+              userProgress={userProgress}
+              updateProgress={updateProgress}
+            />}
+          />
+
+          <Route
+            path="/dashboard"
+            element={<Dashboard user={user} userProgress={userProgress} />}
+          />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
+    </Router>
   );
 }
 
