@@ -1,16 +1,17 @@
+// src/App.js
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ThemeToggle from "./components/ThemeToggle";
-import PracticeSelection from "./components/PracticeSelection";
-import Exam from "./Exam";
-import Dashboard from "./components/Dashboard";
+import PracticeSelection from "./components/PracticeSelection"; // keep existing
+import Exam from "./Exam"; // important: matches src/Exam.js casing
+import Dashboard from "./components/Dashboard"; // keep existing
 import "./App.css";
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuth();
-  if (!user) return <Navigate to="/login" replace />;
+  if (!user) return <Navigate to="/" replace />; // fallback to home if no user
   return children;
 };
 
@@ -50,7 +51,6 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                {/* fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
