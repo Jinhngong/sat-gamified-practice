@@ -1,82 +1,347 @@
 [
   {
-    "id": "eng1",
-    "subject": "English",
-    "sub": "Writing & Language",
-    "skill": "Grammar",
+    "id": 1,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Linear Equations",
+    "domain": "Algebra",
     "difficulty": "Easy",
-    "question": "Choose the best version of the underlined part: She and him went to the store.",
-    "choices": {
-      "A": "She and him",
-      "B": "She and he",
-      "C": "Her and I",
-      "D": "She and her"
-    },
-    "answer": "B",
-    "explanation": "Use subject pronouns: 'She and he' is correct."
+    "type": "multiple-choice",
+    "question": "If $2x + 3 = 11$, what is the value of $x$?",
+    "options": [
+      "$x = 2$",
+      "$x = 4$",
+      "$x = 7$",
+      "$x = 8$"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Solve for $x$: $2x + 3 = 11$, so $2x = 8$, therefore $x = 4$."
   },
   {
-    "id": "eng2",
-    "subject": "English",
-    "sub": "Reading",
-    "skill": "Inference",
+    "id": 2,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Circle Equations",
+    "domain": "Geometry",
     "difficulty": "Medium",
-    "question": "The passage implies the author believes that ____.",
-    "choices": {
-      "A": "option A",
-      "B": "option B",
-      "C": "option C",
-      "D": "option D"
-    },
-    "answer": "C",
-    "explanation": "Inferred from the paragraph."
+    "type": "multiple-choice",
+    "question": "A circle has center $(3, -2)$ and radius $5$. What is the equation of this circle?",
+    "options": [
+      "$(x-3)^2 + (y+2)^2 = 25$",
+      "$(x+3)^2 + (y-2)^2 = 25$",
+      "$(x-3)^2 + (y+2)^2 = 5$",
+      "$(x+3)^2 + (y-2)^2 = 5$"
+    ],
+    "correctAnswer": 0,
+    "explanation": "The standard form of a circle with center $(h,k)$ and radius $r$ is $(x-h)^2 + (y-k)^2 = r^2$."
   },
   {
-    "id": "math1",
+    "id": 3,
+    "testType": "SAT",
     "subject": "Math",
-    "sub": "No Calculator",
-    "skill": "Algebra",
-    "difficulty": "Easy",
-    "question": "If 2x+3=11, what is x?",
-    "choices": {
-      "A": "3",
-      "B": "4",
-      "C": "5",
-      "D": "6"
-    },
-    "answer": "A",
-    "explanation": "2x=8 -> x=4 (Oops this sample intentionally has correct answer 'A' as 3 is wrong; we'll set correct to B)."
-  },
-  {
-    "id": "math1_fix",
-    "subject": "Math",
-    "sub": "No Calculator",
-    "skill": "Algebra",
-    "difficulty": "Easy",
-    "question": "If 2x+3=11, what is x?",
-    "choices": {
-      "A": "3",
-      "B": "4",
-      "C": "5",
-      "D": "6"
-    },
-    "answer": "B",
-    "explanation": "2x=8 => x=4."
-  },
-  {
-    "id": "math2",
-    "subject": "Math",
-    "sub": "Calculator",
-    "skill": "Geometry",
+    "skill": "Quadratic Functions",
+    "domain": "Algebra",
     "difficulty": "Hard",
-    "question": "Area of a circle with radius 3 is:",
-    "choices": {
-      "A": "9\u03c0",
-      "B": "6\u03c0",
-      "C": "3\u03c0",
-      "D": "18\u03c0"
-    },
-    "answer": "A",
-    "explanation": "Area = \u03c0r\u00b2 = 9\u03c0."
+    "type": "multiple-choice",
+    "question": "For the quadratic function $f(x) = ax^2 + bx + c$, if $f(1) = 6$, $f(2) = 11$, and $f(3) = 18$, what is the value of $a$?",
+    "options": [
+      "$a = 1$",
+      "$a = 2$",
+      "$a = 3$",
+      "$a = \\frac{3}{2}$"
+    ],
+    "correctAnswer": 3,
+    "explanation": "Using the given points, we can set up a system of equations and solve for $a = \\frac{3}{2}$."
+  },
+  {
+    "id": 4,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Trigonometry",
+    "domain": "Advanced Topics",
+    "difficulty": "Hard",
+    "type": "multiple-choice",
+    "question": "If $\\sin \\theta = \\frac{3}{5}$ and $\\theta$ is in the first quadrant, what is $\\cos(2\\theta)$?",
+    "options": [
+      "$\\frac{7}{25}$",
+      "$-\\frac{7}{25}$",
+      "$\\frac{24}{25}$",
+      "$-\\frac{24}{25}$"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Using the double angle formula: $\\cos(2\\theta) = 1 - 2\\sin^2\\theta = 1 - 2(\\frac{3}{5})^2 = -\\frac{7}{25}$."
+  },
+  {
+    "id": 5,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Systems of Equations",
+    "domain": "Algebra",
+    "difficulty": "Medium",
+    "type": "student-response",
+    "question": "The system of equations below has solution $(x, y)$. What is the value of $x$?\n$\\begin{cases} 3x + 2y = 16 \\\\ x - y = 2 \\end{cases}$",
+    "correctAnswer": "4",
+    "explanation": "From the second equation: $x = y + 2$. Substituting into the first: $3(y + 2) + 2y = 16$, so $5y = 10$, $y = 2$, and $x = 4$."
+  },
+  {
+    "id": 6,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Statistics",
+    "domain": "Data Analysis",
+    "difficulty": "Medium",
+    "type": "multiple-choice",
+    "question": "A data set has a mean of $50$ and a standard deviation of $8$. If a new data point of $66$ is added, which of the following is true?",
+    "options": [
+      "The mean increases and the standard deviation decreases",
+      "The mean increases and the standard deviation increases", 
+      "The mean decreases and the standard deviation increases",
+      "Both the mean and standard deviation remain the same"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Adding a value above the mean increases both the mean and typically the standard deviation."
+  },
+  {
+    "id": 7,
+    "testType": "PSAT",
+    "subject": "Math", 
+    "skill": "Exponential Functions",
+    "domain": "Algebra",
+    "difficulty": "Easy",
+    "type": "multiple-choice",
+    "question": "If $f(x) = 3^x$ and $f(a) = 9$, what is the value of $a$?",
+    "options": [
+      "$a = 1$",
+      "$a = 2$", 
+      "$a = 3$",
+      "$a = 6$"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Since $f(a) = 3^a = 9 = 3^2$, we have $a = 2$."
+  },
+  {
+    "id": 8,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Polynomial Operations", 
+    "domain": "Algebra",
+    "difficulty": "Medium",
+    "type": "multiple-choice",
+    "question": "What is the remainder when $x^3 + 2x^2 - x + 3$ is divided by $x - 1$?",
+    "options": [
+      "$3$",
+      "$5$",
+      "$7$", 
+      "$9$"
+    ],
+    "correctAnswer": 1,
+    "explanation": "Using the Remainder Theorem: $P(1) = 1^3 + 2(1)^2 - 1 + 3 = 1 + 2 - 1 + 3 = 5$."
+  },
+  {
+    "id": 9,
+    "testType": "SAT",
+    "subject": "Reading",
+    "skill": "Reading Comprehension",
+    "domain": "Information and Ideas",
+    "difficulty": "Medium",
+    "type": "multiple-choice",
+    "question": "In the passage, the author's primary purpose is to:",
+    "context": "The passage discusses the importance of biodiversity in maintaining ecosystem stability and the threats posed by human activities.",
+    "options": [
+      "Argue for stricter environmental regulations",
+      "Explain the concept of biodiversity and its significance",
+      "Compare different types of ecosystems",
+      "Criticize current conservation efforts"
+    ],
+    "correctAnswer": 1,
+    "explanation": "The passage focuses on explaining biodiversity and why it matters for ecosystem stability."
+  },
+  {
+    "id": 10,
+    "testType": "SAT", 
+    "subject": "Writing",
+    "skill": "Grammar and Usage",
+    "domain": "Standard English Conventions",
+    "difficulty": "Easy",
+    "type": "multiple-choice",
+    "question": "Which choice provides the best punctuation for the underlined portion?\n\nThe students worked on their projects **however** they needed more time to complete them.",
+    "options": [
+      "however (no change)",
+      "however,",
+      "; however,", 
+      ", however,"
+    ],
+    "correctAnswer": 2,
+    "explanation": "When 'however' connects two independent clauses, it should be preceded by a semicolon and followed by a comma."
+  },
+  {
+    "id": 11,
+    "testType": "PSAT",
+    "subject": "Math",
+    "skill": "Ratios and Proportions",
+    "domain": "Problem Solving",
+    "difficulty": "Easy", 
+    "type": "multiple-choice",
+    "question": "If the ratio of boys to girls in a class is $3:4$ and there are $12$ boys, how many girls are there?",
+    "options": [
+      "$9$",
+      "$12$",
+      "$15$",
+      "$16$"
+    ],
+    "correctAnswer": 3,
+    "explanation": "If the ratio is $3:4$ and there are $12$ boys, then $\\frac{3}{4} = \\frac{12}{x}$, so $x = 16$ girls."
+  },
+  {
+    "id": 12,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Complex Numbers",
+    "domain": "Advanced Topics", 
+    "difficulty": "Hard",
+    "type": "multiple-choice",
+    "question": "What is the value of $(2 + 3i)(1 - 2i)$?",
+    "options": [
+      "$8 - i$",
+      "$8 + i$",
+      "$-4 - i$",
+      "$-4 + i$"
+    ],
+    "correctAnswer": 0,
+    "explanation": "$(2 + 3i)(1 - 2i) = 2 - 4i + 3i - 6i^2 = 2 - i + 6 = 8 - i$."
+  },
+  {
+    "id": 13,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Volume and Surface Area",
+    "domain": "Geometry",
+    "difficulty": "Medium",
+    "type": "student-response",
+    "question": "A cylinder has a radius of $3$ units and a height of $8$ units. What is the volume of the cylinder? (Use $\\pi = 3.14$)",
+    "correctAnswer": "226.08",
+    "explanation": "Volume = $\\pi r^2 h = 3.14 \\times 3^2 \\times 8 = 3.14 \\times 9 \\times 8 = 226.08$ cubic units."
+  },
+  {
+    "id": 14,
+    "testType": "PSAT",
+    "subject": "Reading",
+    "skill": "Vocabulary in Context",
+    "domain": "Words in Context", 
+    "difficulty": "Easy",
+    "type": "multiple-choice",
+    "question": "As used in line 15, 'novel' most nearly means:",
+    "context": "The scientist proposed a novel approach to solving the climate crisis.",
+    "options": [
+      "Book",
+      "New", 
+      "Complex",
+      "Fictional"
+    ],
+    "correctAnswer": 1,
+    "explanation": "In this context, 'novel' means new or innovative, not referring to a book."
+  },
+  {
+    "id": 15,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Logarithms",
+    "domain": "Advanced Topics",
+    "difficulty": "Hard",
+    "type": "multiple-choice", 
+    "question": "If $\\log_2(x) + \\log_2(y) = 5$ and $\\log_2(x) - \\log_2(y) = 1$, what is the value of $xy$?",
+    "options": [
+      "$16$",
+      "$24$",
+      "$32$",
+      "$48$"
+    ],
+    "correctAnswer": 2,
+    "explanation": "From the first equation: $\\log_2(xy) = 5$, so $xy = 2^5 = 32$."
+  },
+  {
+    "id": 16,
+    "testType": "SAT",
+    "subject": "Writing",
+    "skill": "Sentence Structure",
+    "domain": "Expression of Ideas",
+    "difficulty": "Medium",
+    "type": "multiple-choice",
+    "question": "Which choice most effectively combines the sentences?\n\nThe museum opened in 1995. It features contemporary art. The art comes from local artists.",
+    "options": [
+      "The museum opened in 1995, featuring contemporary art from local artists.",
+      "The museum opened in 1995 and it features contemporary art, the art comes from local artists.",
+      "Opening in 1995, the museum, it features contemporary art from local artists.",
+      "The museum opened in 1995, it features contemporary art, from local artists."
+    ],
+    "correctAnswer": 0,
+    "explanation": "Option A combines the sentences most effectively while maintaining clarity and proper grammar."
+  },
+  {
+    "id": 17,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Sequences and Series",
+    "domain": "Advanced Topics",
+    "difficulty": "Hard",
+    "type": "student-response",
+    "question": "In an arithmetic sequence, the first term is $5$ and the common difference is $3$. What is the sum of the first $10$ terms?",
+    "correctAnswer": "185",
+    "explanation": "Using $S_n = \\frac{n}{2}[2a + (n-1)d]$: $S_{10} = \\frac{10}{2}[2(5) + 9(3)] = 5[10 + 27] = 185$."
+  },
+  {
+    "id": 18,
+    "testType": "PSAT",
+    "subject": "Math",
+    "skill": "Percent Problems", 
+    "domain": "Problem Solving",
+    "difficulty": "Easy",
+    "type": "multiple-choice",
+    "question": "A shirt originally costs $\\$40$. If it's on sale for $25\\%$ off, what is the sale price?",
+    "options": [
+      "$\\$10$",
+      "$\\$15$",
+      "$\\$25$",
+      "$\\$30$"
+    ],
+    "correctAnswer": 3,
+    "explanation": "Sale price = $40 - (0.25 \\times 40) = 40 - 10 = \\$30$."
+  },
+  {
+    "id": 19,
+    "testType": "SAT",
+    "subject": "Reading", 
+    "skill": "Author's Purpose",
+    "domain": "Rhetoric",
+    "difficulty": "Medium",
+    "type": "multiple-choice",
+    "question": "The author includes the statistical data in paragraph 3 primarily to:",
+    "context": "The paragraph presents research showing declining bee populations and their impact on agriculture.",
+    "options": [
+      "Support the argument about environmental threats",
+      "Provide historical context",
+      "Contradict previous claims", 
+      "Introduce a new topic"
+    ],
+    "correctAnswer": 0,
+    "explanation": "Statistical data is used to provide evidence supporting the author's argument about environmental concerns."
+  },
+  {
+    "id": 20,
+    "testType": "SAT",
+    "subject": "Math",
+    "skill": "Absolute Value",
+    "domain": "Algebra", 
+    "difficulty": "Medium",
+    "type": "multiple-choice",
+    "question": "How many solutions does the equation $|2x - 3| = 7$ have?",
+    "options": [
+      "$0$",
+      "$1$",
+      "$2$",
+      "$3$"
+    ],
+    "correctAnswer": 2,
+    "explanation": "The equation $|2x - 3| = 7$ gives us $2x - 3 = 7$ or $2x - 3 = -7$, yielding $x = 5$ or $x = -2$. So there are 2 solutions."
   }
 ]
