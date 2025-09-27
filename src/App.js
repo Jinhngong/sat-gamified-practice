@@ -4,7 +4,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import { AuthProvider, useAuth } from "./contexts/AuthContext";
 import ThemeToggle from "./components/ThemeToggle";
 import PracticeSelection from "./components/PracticeSelection";
-import Exam from "./exam";
+import Exam from "./Exam";
 import Dashboard from "./components/Dashboard";
 import "./App.css";
 
@@ -50,7 +50,7 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                {/* No strict login page for now — fallback demo user is always created */}
+                {/* fallback */}
                 <Route path="*" element={<Navigate to="/" replace />} />
               </Routes>
             </main>
