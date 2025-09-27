@@ -1,3 +1,4 @@
+// src/contexts/AuthContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const AuthContext = createContext();
@@ -6,15 +7,22 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
 
   useEffect(() => {
-    // Try Supabase session first (if you enable Supabase later)
-    // const session = await supabase.auth.getSession();
-    // if (session?.user) { setUser(session.user); return; }
-
-    // Otherwise, load demo user
+    // If you later add Supabase, check Supabase session here first.
+    // For now: demo user fallback so app never blocks on missing session.
     const saved = localStorage.getItem("demo_user");
     if (saved) {
-      setUser(JSON.parse(saved));
+      try {
+        setUser(JSON.parse(saved));
+      } catch (e) {
+        console.error("Invalid demo_user in localStorage", e);
+        localStorage.removeItem("demo_user");
+        createDemo();
+      }
     } else {
+      createDemo();
+    }
+
+    function createDemo() {
       const demo = { id: "demo-123", name: "Guest User" };
       localStorage.setItem("demo_user", JSON.stringify(demo));
       setUser(demo);
