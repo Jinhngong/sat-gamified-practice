@@ -1,6 +1,6 @@
 // src/App.js
 import React, { useState, useEffect } from 'react';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { ThemeProvider, useTheme } from './contexts/ThemeContext';
 import ThemeToggle from './components/ThemeToggle';
 import PracticeSelection from './components/PracticeSelection';
 import MathQuestion from './components/MathQuestion';
@@ -256,10 +256,10 @@ function App() {
         type: 'multiple-choice',
         question: 'If $2x + 3 = 11$, what is the value of $x$?',
         options: [
-          '$x = 2,
-          '$x = 4, 
-          '$x = 7,
-          '$x = 8
+          '$x = 2$',
+          '$x = 4$', 
+          '$x = 7$',
+          '$x = 8$'
         ],
         correctAnswer: 1
       },
@@ -272,10 +272,10 @@ function App() {
         type: 'multiple-choice',
         question: 'A circle has center $(3, -2)$ and radius $5$. What is the equation of this circle?',
         options: [
-          '$(x-3)^2 + (y+2)^2 = 25,
-          '$(x+3)^2 + (y-2)^2 = 25,
-          '$(x-3)^2 + (y+2)^2 = 5,
-          '$(x+3)^2 + (y-2)^2 = 5
+          '$(x-3)^2 + (y+2)^2 = 25$',
+          '$(x+3)^2 + (y-2)^2 = 25$',
+          '$(x-3)^2 + (y+2)^2 = 5$',
+          '$(x+3)^2 + (y-2)^2 = 5$'
         ],
         correctAnswer: 0
       }
@@ -379,7 +379,7 @@ function AppContent({ currentScreen, renderCurrentScreen, currentUser }) {
       {/* Header */}
       {currentUser && (
         <header 
-          className={`${classes.border} border-b sticky top-0 z-40 backdrop-blur-sm`}
+          className={`border-b sticky top-0 z-40 backdrop-blur-sm ${classes.border}`}
           style={{ 
             backgroundColor: colors.surface + 'F0',
             borderBottomColor: colors.border 
@@ -410,59 +410,6 @@ function AppContent({ currentScreen, renderCurrentScreen, currentUser }) {
       <main className="flex-1">
         {renderCurrentScreen()}
       </main>
-
-      {/* Global Styles */}
-      <style jsx global>{`
-        /* Custom LaTeX styling */
-        .latex-content .MathJax {
-          color: ${colors.text} !important;
-        }
-        
-        .latex-content .MathJax_Display {
-          margin: 1em 0 !important;
-        }
-        
-        /* Scrollbar styling */
-        ::-webkit-scrollbar {
-          width: 8px;
-          height: 8px;
-        }
-        
-        ::-webkit-scrollbar-track {
-          background: ${colors['surface-secondary']};
-          border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb {
-          background: ${colors.border};
-          border-radius: 4px;
-        }
-        
-        ::-webkit-scrollbar-thumb:hover {
-          background: ${colors.secondary};
-        }
-
-        /* Focus styles */
-        *:focus {
-          outline: 2px solid ${colors.primary};
-          outline-offset: 2px;
-        }
-
-        /* Animation keyframes */
-        @keyframes pulse {
-          0%, 100% {
-            opacity: 1;
-          }
-          50% {
-            opacity: 0.5;
-          }
-        }
-
-        .animate-pulse {
-          animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-      `}
-      `}</style>
     </div>
   );
 }
