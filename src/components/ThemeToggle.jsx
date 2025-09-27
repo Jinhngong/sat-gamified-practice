@@ -1,3 +1,4 @@
+// src/components/ThemeToggle.jsx
 import React from "react";
 import { useTheme } from "../contexts/ThemeContext";
 
@@ -7,9 +8,10 @@ const ThemeToggle = () => {
   return (
     <button
       onClick={toggleTheme}
-      className="p-2 rounded-lg shadow bg-gray-200 dark:bg-gray-700"
+      aria-label="Toggle theme"
+      className="p-2 rounded-lg shadow-sm border hover:opacity-90 transition"
     >
-      {theme === "dark" ? "☀️ Light Mode" : "🌙 Dark Mode"}
+      {theme === "dark" ? "☀️ Light" : "🌙 Dark"}
     </button>
   );
 };
