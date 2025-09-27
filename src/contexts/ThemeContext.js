@@ -1,3 +1,4 @@
+// src/contexts/ThemeContext.js
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 const ThemeContext = createContext();
@@ -7,7 +8,7 @@ export const ThemeProvider = ({ children }) => {
 
   useEffect(() => {
     const saved = localStorage.getItem("theme");
-    if (saved) {
+    if (saved === "dark" || saved === "light") {
       setTheme(saved);
       applyTheme(saved);
     } else {
@@ -16,6 +17,7 @@ export const ThemeProvider = ({ children }) => {
       setTheme(initial);
       applyTheme(initial);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const applyTheme = (mode) => {
@@ -24,10 +26,12 @@ export const ThemeProvider = ({ children }) => {
       root.style.setProperty("--color-bg", "#121212");
       root.style.setProperty("--color-text", "#e0e0e0");
       root.style.setProperty("--color-surface", "#1e1e1e");
+      root.classList.add("dark");
     } else {
       root.style.setProperty("--color-bg", "#ffffff");
       root.style.setProperty("--color-text", "#000000");
       root.style.setProperty("--color-surface", "#f5f5f5");
+      root.classList.remove("dark");
     }
   };
 
