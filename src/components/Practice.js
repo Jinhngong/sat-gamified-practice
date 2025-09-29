@@ -1,7 +1,48 @@
-// Practice.js
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import renderLatex from './renderLatex'; // ✅ using the new helper in the same folder
+
+// LaTeX rendering function
+const renderLatex = (text) => {
+  if (!text || typeof text !== 'string') return text;
+
+  const rendered = text
+    // Fractions
+    .replace(/\\frac{([^}]+)}{([^}]+)}/g, '($1)/($2)')
+    // Square roots
+    .replace(/\\sqrt{([^}]+)}/g, '√($1)')
+    // Superscripts
+    .replace(/\^{([^}]+)}/g, '^($1)')
+    .replace(/\^([a-zA-Z0-9])/g, '^$1')
+    // Subscripts
+    .replace(/_{([^}]+)}/g, '_($1)')
+    .replace(/_([a-zA-Z0-9])/g, '_$1')
+    // Greek letters
+    .replace(/\\alpha/g, 'α')
+    .replace(/\\beta/g, 'β')
+    .replace(/\\gamma/g, 'γ')
+    .replace(/\\delta/g, 'δ')
+    .replace(/\\theta/g, 'θ')
+    .replace(/\\pi/g, 'π')
+    .replace(/\\sigma/g, 'σ')
+    // Math symbols
+    .replace(/\\cdot/g, '·')
+    .replace(/\\times/g, '×')
+    .replace(/\\div/g, '÷')
+    .replace(/\\pm/g, '±')
+    .replace(/\\leq/g, '≤')
+    .replace(/\\geq/g, '≥')
+    .replace(/\\neq/g, '≠')
+    .replace(/\\approx/g, '≈')
+    .replace(/\\infty/g, '∞')
+    // Remove remaining LaTeX commands
+    .replace(/\\[a-zA-Z]+{([^}]*)}/g, '$1')
+    .replace(/\\[a-zA-Z]+/g, '')
+    // Clean up extra spaces
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return rendered;
+};
 
 const Practice = ({ user, userProgress, updateProgress }) => {
   // State variables
@@ -70,13 +111,7 @@ const Practice = ({ user, userProgress, updateProgress }) => {
     if (!showFilters) {
       loadQuestions();
     }
-  }, [
-    selectedAssessment,
-    selectedTestType,
-    selectedDomains,
-    selectedDifficulties,
-    showFilters,
-  ]);
+  }, [selectedAssessment, selectedTestType, selectedDomains, selectedDifficulties, showFilters]);
 
   const loadQuestions = async () => {
     try {
@@ -105,23 +140,13 @@ const Practice = ({ user, userProgress, updateProgress }) => {
           domain: q.domain || q.skill || 'Unknown',
           question:
             selectedTestType === 'math'
-              ? renderLatex(
-                  q.question?.question ||
-                    q.question?.paragraph ||
-                    'Question unavailable'
-                )
-              : q.question?.question ||
-                q.question?.paragraph ||
-                'Question unavailable',
+              ? renderLatex(q.question?.question || q.question?.paragraph || 'Question unavailable')
+              : q.question?.question || q.question?.paragraph || 'Question unavailable',
           choices:
             selectedTestType === 'math'
-              ? Object.values(q.question?.choices || {}).map((choice) =>
-                  renderLatex(choice)
-                )
+              ? Object.values(q.question?.choices || {}).map((choice) => renderLatex(choice))
               : Object.values(q.question?.choices || {}),
-          correct: Object.keys(q.question?.choices || {}).indexOf(
-            q.question?.correct_answer
-          ),
+          correct: Object.keys(q.question?.choices || {}).indexOf(q.question?.correct_answer),
           explanation:
             selectedTestType === 'math'
               ? renderLatex(q.question?.explanation || 'No explanation available')
@@ -135,8 +160,7 @@ const Practice = ({ user, userProgress, updateProgress }) => {
         const filtered = processedQuestions.filter((q) => {
           const domainMatch = selectedDomains[q.domain] || selectedDomains[q.skill];
           const difficultyMatch = selectedDifficulties[q.difficulty];
-          const assessmentMatch =
-            q.assessment === selectedAssessment || selectedAssessment === 'SAT';
+          const assessmentMatch = q.assessment === selectedAssessment || selectedAssessment === 'SAT';
 
           return domainMatch && difficultyMatch && assessmentMatch;
         });
@@ -172,21 +196,16 @@ const Practice = ({ user, userProgress, updateProgress }) => {
 
     Object.keys(skillStats).forEach((skill) => {
       const stats = skillStats[skill];
-      skillAccuracy[skill] =
-        stats.attempts > 0 ? stats.correct / stats.attempts : 0;
+      skillAccuracy[skill] = stats.attempts > 0 ? stats.correct / stats.attempts : 0;
     });
 
     const weightedQuestions = questionsList.map((q) => {
       const accuracy = skillAccuracy[q.skill] || skillAccuracy[q.domain] || 0;
-      const weight =
-        accuracy < 0.1 ? 10 : Math.max(1, 1 / (accuracy + 0.1));
+      const weight = accuracy < 0.1 ? 10 : Math.max(1, 1 / (accuracy + 0.1));
       return { question: q, weight };
     });
 
-    const totalWeight = weightedQuestions.reduce(
-      (sum, wq) => sum + wq.weight,
-      0
-    );
+    const totalWeight = weightedQuestions.reduce((sum, wq) => sum + wq.weight, 0);
     let random = Math.random() * totalWeight;
 
     for (const wq of weightedQuestions) {
@@ -313,18 +332,16 @@ const Practice = ({ user, userProgress, updateProgress }) => {
     }
   };
 
-  // --------------------------
-  // Render filter selection screen
-  // --------------------------
+  // --- UI RENDERING ---
+
+  // Filter screen
   if (showFilters) {
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="bg-white rounded-2xl p-8 shadow-sm">
             <div className="flex items-center justify-between mb-8">
-              <h1 className="text-3xl font-bold text-gray-900">
-                Practice Settings
-              </h1>
+              <h1 className="text-3xl font-bold text-gray-900">Practice Settings</h1>
               <Link
                 to="/"
                 className="text-gray-500 hover:text-gray-700 transition-colors flex items-center gap-2"
@@ -332,12 +349,9 @@ const Practice = ({ user, userProgress, updateProgress }) => {
                 ← Back to Home
               </Link>
             </div>
-
             {/* Assessment Selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Select Assessment
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Assessment</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {assessmentOptions.map((option) => (
                   <button
@@ -354,12 +368,9 @@ const Practice = ({ user, userProgress, updateProgress }) => {
                 ))}
               </div>
             </div>
-
             {/* Test Type Selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Select Test Type
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Test Type</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {testTypeOptions.map((option) => (
                   <button
@@ -376,13 +387,10 @@ const Practice = ({ user, userProgress, updateProgress }) => {
                 ))}
               </div>
             </div>
-
             {/* Domain Selection */}
             <div className="mb-8">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Select{' '}
-                {selectedTestType === 'math' ? 'Math' : 'Reading and Writing'}{' '}
-                Domains
+                Select {selectedTestType === 'math' ? 'Math' : 'Reading and Writing'} Domains
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {domainsByTestType[selectedTestType].map((domain) => (
@@ -398,12 +406,9 @@ const Practice = ({ user, userProgress, updateProgress }) => {
                 ))}
               </div>
             </div>
-
             {/* Difficulty Selection */}
             <div className="mb-8">
-              <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                Select Difficulty Levels
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Select Difficulty Levels</h3>
               <div className="flex gap-4">
                 {[1, 2, 3].map((difficulty) => (
                   <label key={difficulty} className="flex items-center space-x-3">
@@ -424,7 +429,6 @@ const Practice = ({ user, userProgress, updateProgress }) => {
                 ))}
               </div>
             </div>
-
             {/* Action Buttons */}
             <div className="flex gap-4">
               <button
@@ -446,149 +450,141 @@ const Practice = ({ user, userProgress, updateProgress }) => {
     );
   }
 
-  // --------------------------
   // Loading state
-  // --------------------------
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <h2 className="text-2xl font-semibold text-gray-900 mb-2">
-            Loading Practice Questions
-          </h2>
+          <h2 className="text-2xl font-semibold text-gray-900 mb-2">Loading Practice Questions</h2>
           <p className="text-gray-600">Fetching questions from OpenSAT API…</p>
         </div>
       </div>
     );
   }
 
-  // --------------------------
   // Error state
-  // --------------------------
   if (error) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center bg-white rounded-2xl p-8 shadow-lg">
           <div className="text-6xl mb-4">❌</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Error Loading Questions
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Error Loading Questions</h2>
           <p className="text-gray-600 mb-6">{error}</p>
-          <div className="space-y-3">
-            <button
-              onClick={loadQuestions}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Try Again
-            </button>
-            <button
-              onClick={() => setShowFilters(true)}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
-            >
-              Back to Settings
-            </button>
-          </div>
+          <button
+            onClick={loadQuestions}
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Retry Loading
+          </button>
         </div>
       </div>
     );
   }
 
-  // --------------------------
-  // No questions available state
-  // --------------------------
-  if (!currentQuestion || filteredQuestions.length === 0) {
+  // No questions state
+  if (!currentQuestion) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="max-w-md mx-auto text-center bg-white rounded-2xl p-8 shadow-lg">
-          <div className="text-6xl mb-4">🤔</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            No Questions Available
-          </h2>
+          <div className="text-6xl mb-4">📭</div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">No Questions Found</h2>
           <p className="text-gray-600 mb-6">
-            No questions found matching your selected criteria. Try adjusting
-            your filters.
+            Try adjusting your filter settings to find more practice questions.
           </p>
-          <div className="space-y-3">
-            <button
-              onClick={() => setShowFilters(true)}
-              className="w-full bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Change Settings
-            </button>
-            <button
-              onClick={() => {
-                resetFilters();
-                setShowFilters(false);
-              }}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
-            >
-              Reset and Start Over
-            </button>
-          </div>
+          <button
+            onClick={() => setShowFilters(true)}
+            className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+          >
+            Adjust Filters
+          </button>
         </div>
       </div>
     );
   }
 
-  // --------------------------
-  // Main practice UI
-  // --------------------------
+  // Main practice screen
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-semibold text-gray-600">
-              Question {questionIndex + 1} of {filteredQuestions.length}
-            </h2>
-            <span
-              className={`px-3 py-1 rounded-full text-sm font-medium ${getDifficultyColor(
-                currentQuestion.difficulty
-              )}`}
-            >
-              {getDifficultyLabel(currentQuestion.difficulty)}
-            </span>
+    <div className="min-h-screen bg-gray-50 py-6 sm:py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        {/* Header with progress */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900">Practice Session</h1>
+            <p className="text-gray-600">
+              {selectedAssessment} • {selectedTestType === 'math' ? 'Math' : 'Reading and Writing'}
+            </p>
           </div>
-
-          <h1 className="text-2xl font-bold text-gray-900 mb-6">
-            {currentQuestion.question}
-          </h1>
-
-          <div className="space-y-4">
-            {currentQuestion.choices.map((choice, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleAnswerSelect(idx)}
-                className={getChoiceStyle(idx)}
-                disabled={selectedAnswer !== null}
+          <div className="mt-4 sm:mt-0 flex items-center gap-4">
+            <div className="bg-white rounded-xl px-4 py-2 shadow-sm">
+              <span className="font-bold text-gray-900">{sessionStats.correct}</span>
+              <span className="text-gray-600"> / {sessionStats.total} Correct</span>
+            </div>
+            <button
+              onClick={() => setShowFilters(true)}
+              className="px-4 py-2 border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 transition-colors"
+            >
+              Adjust Filters
+            </button>
+          </div>
+        </div>
+        {/* Question Card */}
+        <div className="bg-white rounded-2xl shadow-sm p-6 sm:p-8">
+          {/* Question header */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6 pb-4 border-b border-gray-100">
+            <div className="flex items-center gap-3 mb-3 sm:mb-0">
+              <span className="text-sm font-medium px-3 py-1 rounded-full bg-blue-100 text-blue-800">
+                {currentQuestion.domain}
+              </span>
+              <span
+                className={`text-sm font-medium px-3 py-1 rounded-full ${getDifficultyColor(
+                  currentQuestion.difficulty
+                )}`}
               >
-                {choice}
+                {getDifficultyLabel(currentQuestion.difficulty)}
+              </span>
+            </div>
+            <div className="text-sm text-gray-500">
+              Question {questionIndex + 1} of {filteredQuestions.length}
+            </div>
+          </div>
+          {/* Question text */}
+          <div className="mb-6">
+            <p className="text-lg text-gray-900 whitespace-pre-line leading-relaxed">
+              {currentQuestion.question}
+            </p>
+          </div>
+          {/* Answer choices */}
+          <div className="space-y-4 mb-6">
+            {currentQuestion.choices.map((choice, index) => (
+              <button
+                key={index}
+                onClick={() => handleAnswerSelect(index)}
+                className={getChoiceStyle(index)}
+              >
+                <span className="font-bold mr-3">{String.fromCharCode(65 + index)}.</span>
+                <span>{choice}</span>
               </button>
             ))}
           </div>
-
+          {/* Explanation */}
           {showExplanation && (
-            <div className="mt-6 p-4 bg-gray-50 border-l-4 border-blue-500 rounded">
-              <h3 className="font-semibold text-gray-900 mb-2">Explanation:</h3>
-              <p className="text-gray-700">{currentQuestion.explanation}</p>
+            <div className="mt-6 bg-gray-50 rounded-xl p-6 border border-gray-200">
+              <h3 className="font-bold text-gray-900 mb-3">Explanation</h3>
+              <p className="text-gray-700 whitespace-pre-line">{currentQuestion.explanation}</p>
             </div>
           )}
-
-          <div className="mt-8 flex justify-between items-center">
-            <button
-              onClick={() => setShowFilters(true)}
-              className="px-4 py-2 text-gray-600 hover:text-gray-900 transition-colors"
-            >
-              ← Change Settings
-            </button>
-            <button
-              onClick={nextQuestion}
-              className="bg-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Next Question →
-            </button>
-          </div>
+          {/* Next question button */}
+          {selectedAnswer !== null && (
+            <div className="mt-6 flex justify-end">
+              <button
+                onClick={nextQuestion}
+                className="bg-blue-600 text-white px-6 py-3 rounded-xl font-semibold hover:bg-blue-700 transition-colors"
+              >
+                Next Question →
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </div>
