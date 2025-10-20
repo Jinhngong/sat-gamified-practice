@@ -1,70 +1,92 @@
 # SAT Gamified Practice
 
-A demo React app for gamified SAT practice with Practice Rush, Exam Mode, and a Dashboard.
-This repo includes:
-- Dark mode (default) with light mode toggle.
-- Local "accounts" demo (stored in browser `localStorage`) so users can sign up and track progress per account (demo only).
-- Adaptive question selection: the app favors questions from skills where the user has lower accuracy.
-- Sample `public/questions.json` — replace with OpenSAT or your own dataset.
-- Instructions to integrate Supabase (recommended) for real auth & persistent cross-device progress.
+🎯 **Live Demo:** [https://sat-gamified-practice.vercel.app/](https://sat-gamified-practice.vercel.app/)
 
----
+A gamified SAT practice platform built with React that helps students improve their test performance through adaptive learning, progress tracking, and engaging game mechanics.
 
-## Quick start (for non-coders)
+## 🎮 What This Project Aims to Achieve
 
-### 1) Install Node.js
-Download and install Node.js (LTS) from https://nodejs.org. This includes `npm`.
+This platform addresses common challenges in SAT preparation by:
 
-### 2) Prepare the project locally
-Unzip the project, then in a terminal run:
+- **Adaptive Learning**: Automatically identifies weak skill areas and prioritizes practice questions based on individual performance patterns
+- **Gamification**: Motivates consistent practice through points, streaks, and achievement systems
+- **Flexible Practice Modes**: 
+  - **Practice Rush** - Quick, focused skill practice with immediate feedback
+  - **Exam Mode** - Full-length timed practice simulating real test conditions
+- **Progress Analytics**: Visual dashboard tracking performance trends, skill-level accuracy, and improvement over time
+- **Personalized Question Selection**: Uses weighted algorithms to serve questions from skills where users need the most improvement
+
+## ✨ Key Features
+
+- 🌙 **Dark/Light Mode** - Built-in theme toggle for comfortable studying
+- 📊 **Performance Dashboard** - Real-time analytics showing strengths and weaknesses
+- 🎯 **Skill-Based Tracking** - Monitors accuracy across different SAT skill categories
+- 🔥 **Streak System** - Encourages daily practice habits
+- 📱 **Responsive Design** - Works seamlessly on desktop and mobile devices
+
+## 🛠️ Tech Stack
+
+- **Frontend**: React, CSS3
+- **State Management**: React Context API
+- **Deployment**: Vercel
+- **Data Storage**: Browser localStorage (demo) with Supabase integration ready
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+Download and install [Node.js (LTS)](https://nodejs.org). This includes `npm`.
+
+### Installation
+
+1. Clone the repository:
 ```bash
+git clone https://github.com/Jinhngong/sat-gamified-practice.git
 cd sat-gamified-practice
+```
+
+2. Install dependencies:
+```bash
 npm install
+```
+
+3. Start the development server:
+```bash
 npm start
 ```
-The app will open at http://localhost:3000.
 
-### 3) Create a GitHub repo & push (step-by-step)
-Replace `your-github-username` and `your-repo-name` below.
+The app will open at [http://localhost:3000](http://localhost:3000).
 
-```bash
-# in project folder
-git init
-git add .
-git commit -m "Initial commit: SAT Gamified Practice"
-git branch -M main
-git remote add origin https://github.com/your-github-username/your-repo-name.git
-git push -u origin main
+## 📦 Project Structure
+
+```
+sat-gamified-practice/
+├── public/
+│   └── questions.json          # SAT question bank (replace with OpenSAT dataset)
+├── src/
+│   ├── auth.js                 # Demo authentication UI and logic
+│   ├── utils.js                # Core progress tracking & adaptive selection
+│   ├── supabaseClient.js       # Scaffold for database integration
+│   └── components/             # React components
+└── README.md
 ```
 
-If you don't have a GitHub repo yet:
-1. Go to https://github.com and create a new repository (name it `sat-gamified-practice`).
-2. Then run the commands above (use the URL GitHub shows after creating the repo).
+## 🗄️ Database Integration (Currently Not Working)
 
-### 4) Deploy to Vercel (one-click)
-1. Create a free account at https://vercel.com and connect your GitHub account.
-2. Click **New Project → Import Git Repository** and pick your repo.
-3. Use the detected build settings (Create React App).
-4. Add Environment Variables if you plan to enable Supabase (see below).
-5. Click **Deploy** — you’ll get a public URL.
+The current demo uses browser `localStorage` for:
+- User accounts (username/password - demo only, not secure)
+- Per-user progress stored under `sat_progress_{userId}`
 
----
+**⚠️ Limitations**: Progress doesn't sync across devices and is cleared if browser data is cleared.
 
-## Accounts & Persistent Storage
+### Setting Up Supabase (Recommended)
 
-This demo uses browser `localStorage` to store:
-- Registered users (username/password) — **not secure**; demo only.
-- Per-user progress stored under `sat_progress_{userId}`.
+To enable real authentication and persistent cross-device progress:
 
-### Production-ready (recommended)
-To make real accounts and cross-device progress, integrate Supabase or Firebase:
-- Create a Supabase project, enable Auth, create a `progress` table.
-- Set environment variables in Vercel:
-  - `REACT_APP_SUPABASE_URL`
-  - `REACT_APP_SUPABASE_ANON_KEY`
-- Update the client code to use `@supabase/supabase-js` (example scaffold included in `src/supabaseClient.js`).
+1. Create a free [Supabase](https://supabase.com) project
+2. Enable Authentication
+3. Create a `progress` table:
 
-Example Supabase table SQL:
 ```sql
 create table progress (
   id uuid default gen_random_uuid() primary key,
@@ -76,25 +98,72 @@ create table progress (
 );
 ```
 
+4. Add environment variables in Vercel:
+   - `REACT_APP_SUPABASE_URL`
+   - `REACT_APP_SUPABASE_ANON_KEY`
+
+5. Update `src/supabaseClient.js` to use `@supabase/supabase-js`
+
+## 🎯 How Adaptive Question Selection Works
+
+1. **Track Performance**: Records attempts and correct answers per skill
+2. **Calculate Accuracy**: Computes accuracy rate for each skill (correct/attempts)
+3. **Weight Skills**: Assigns higher weights to skills with lower accuracy
+4. **Smart Selection**: Randomly selects next question weighted toward weaker skills
+
+This ensures users spend more time on areas that need improvement.
+
+## 📝 Customizing Questions
+
+Replace `public/questions.json` with your own question bank. Expected format:
+
+```json
+[
+  {
+    "id": 1,
+    "skill": "Algebra",
+    "question": "Solve for x: 2x + 5 = 15",
+    "options": ["x = 5", "x = 10", "x = 15", "x = 20"],
+    "correct": 0
+  }
+]
+```
+
+Consider using the [OpenSAT dataset](https://github.com/openstax/openstax-resource-server) for authentic practice questions.
+
+## 🚀 Deployment
+
+This project is deployed on Vercel. To deploy your own:
+
+1. Create a [Vercel account](https://vercel.com) and connect GitHub
+2. Click **New Project** → Import your repository
+3. Use detected build settings (Create React App)
+4. Add environment variables if using Supabase
+5. Click **Deploy**
+
+## 🔮 Future Enhancements
+
+- [ ] Full Supabase integration for persistent storage
+- [ ] Social features (leaderboards, study groups)
+- [ ] Expanded question bank with official SAT questions
+- [ ] Detailed analytics with performance predictions
+- [ ] Mobile app version
+- [ ] AI-powered explanations for wrong answers
+
+## 📄 License
+
+This project is open source and available under the [MIT License](LICENSE).
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/Jinhngong/sat-gamified-practice/issues).
+
+## 👨‍💻 Author
+
+**Jin Hng Ong**
+- GitHub: [@Jinhngong](https://github.com/Jinhngong)
+- LinkedIn: [jinhngong](https://www.linkedin.com/in/jinhngong)
+
 ---
 
-## How adaptive selection works (brief)
-The app tracks attempts and correct counts per skill. When selecting a next question, it:
-- Calculates accuracy per skill (correct/attempts).
-- Builds weights inversely proportional to accuracy (weaker skills get higher weight).
-- Samples a question by skill-weighted random selection.
-
----
-
-## Files you may want to edit
-- `public/questions.json` — replace with your question bank (OpenSAT JSON or export).
-- `src/utils.js` — core progress & sampling logic.
-- `src/auth.js` — demo auth UI and localStorage behavior.
-- `src/supabaseClient.js` — scaffold for Supabase integration.
-
----
-
-## Need help?
-Tell me:
-- If you'd like me to hook up Supabase (I can provide exact SQL & code edits).
-- Or if you want me to create the GitHub repo for you (I cannot access your GitHub, but I can produce exact commands and files).
+⭐ If you find this project helpful, please consider giving it a star!
